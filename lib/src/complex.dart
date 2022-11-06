@@ -1,9 +1,14 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 /// Represents a complex number.
 class Complex implements Comparable<Complex> {
   /// Represents a complex number.
   const Complex(this.real, this.image);
+
+  /// [Complex] from polar values.
+  factory Complex.polar(double radius, double theta) {
+    return Complex(radius * math.cos(theta), radius * math.sin(theta));
+  }
 
   /// Represents the real part of the complex number.
   final double real;
@@ -24,8 +29,66 @@ class Complex implements Comparable<Complex> {
       return double.infinity;
     }
 
-    return sqrt((real * real) + (image * image));
+    return math.sqrt((real * real) + (image * image));
   }
+
+  /// Compute the exponential function of this complex number.
+  ///
+  /// Implements the formula:
+  /// `exp(a + bi) = exp(a) * cos(b) + exp(a) * sin(b)i`.
+  Complex exp() {
+    if (isNaN) return Complex.nan;
+
+    final radius = math.exp(real);
+    return Complex.polar(radius, image);
+  }
+
+  /// Compute the natural logarithm of this complex number.
+  ///
+  /// Implements the formula:
+  /// `log(a + bi) = ln(|a + bi|) + arg(a + bi)i`.
+  Complex log() {
+    if (isNaN) return Complex.nan;
+
+    return Complex(math.log(abs()), math.atan2(image, real));
+  }
+
+  /// Compute the argument of this complex number.
+  ///
+  /// The argument is the angle phi between the positive real axis and
+  /// the point representing this number in the complex plane.
+  /// The value returned is between -PI (not inclusive)
+  /// and PI (inclusive), with negative values returned for numbers with
+  /// negative imaginary parts.
+  double argument() => math.atan2(image, real);
+
+  /// The square root of -1. A number representing "0.0 + 1.0i"
+  static const i = Complex(0.0, 1.0);
+
+  /// A complex number representing "NaN + NaNi"
+  static const nan = Complex(double.nan, double.nan);
+
+  /// A complex number representing "+INF + INFi"
+  static const infinity = Complex(double.infinity, double.infinity);
+
+  /// A complex number representing "0.0 + 0.0i"
+  static const zero = Complex(0.0, 0);
+
+  /// A complex number representing "1.0 + 0.0i"
+  static const one = Complex(1.0, 0);
+
+  /// A complex number representing "2.0 + 0.0i"
+  static const two = Complex(2.0, 0);
+
+  /// A complex number representing "pi + 0.0i"
+  static const pi = Complex(math.pi, 0);
+
+  /// A complex number representing "e + 0.0i"
+  static const e = Complex(math.e, 0);
+
+  bool get isFinite => !isNaN && real.isFinite && image.isFinite;
+  bool get isInfinite => !isNaN && (real.isInfinite || image.isInfinite);
+  bool get isNaN => real.isNaN || image.isNaN;
 
   /// Return the conjugate of this complex number.
   ///
@@ -33,6 +96,8 @@ class Complex implements Comparable<Complex> {
   Complex conjugate() => Complex(real, -image);
 
   @override
+
+  /// Returns the string representation.
   String toString() => '($real + ${image}i)';
 
   @override
@@ -49,9 +114,8 @@ class Complex implements Comparable<Complex> {
   /// Returns a hash code for a [Complex] value;
   int get hashCode => real.hashCode ^ image.hashCode;
 
-  @override
-
   /// The equality operator.
+  @override
   bool operator ==(Object other) {
     if (other is Complex) {
       return real == other.real && image == other.image;
@@ -62,5 +126,41 @@ class Complex implements Comparable<Complex> {
     }
 
     return false;
+  }
+
+  Complex operator -() {
+    if (isNaN) {
+      return Complex.nan;
+    }
+
+    return Complex(-real, -image);
+  }
+
+  Complex operator +(Complex other) {
+    if (isNaN || other.isNaN) return Complex.nan;
+
+    return Complex(real + other.real, image + other.image);
+  }
+
+  Complex operator -(Complex other) {
+    if (isNaN || other.isNaN) return Complex.nan;
+
+    return Complex(real - other.real, image - other.image);
+  }
+
+  Complex operator *(Complex other) {
+    if (isNaN || other.isNaN) return Complex.nan;
+
+    if (real.isInfinite ||
+        image.isInfinite ||
+        other.real.isInfinite ||
+        other.image.isInfinite) {
+      return Complex.infinity;
+    }
+
+    return Complex(
+      real * other.real - image * other.image,
+      real * other.image + image * other.real,
+    );
   }
 }
