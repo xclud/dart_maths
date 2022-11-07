@@ -32,4 +32,8 @@ void main() {
   test('Multiplication Operator', () {
     expect(complex * Complex.two == Complex(6, 8), true);
   });
+
+  test('Division Operator', () {
+    expect(complex / Complex.two == Complex(1.5, 2), true);
+  });
 }
