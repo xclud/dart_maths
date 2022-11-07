@@ -1,6 +1,6 @@
 name: maths
 description: Advanced Math library for Dart with support for Complex, FFT and Convolutions.
-version: 0.0.1
+version: 0.0.2
 repository: https://github.com/xclud/dart_maths
 homepage: https://pwa.ir
 
